@@ -22,8 +22,8 @@ where
     let (tx, rx) = mpsc::channel();
     thread::spawn(move || {
         let mut player: NotePlayer<S> = NotePlayer::new();
-        loop {
-            let msg = rx.recv().unwrap();
+
+        for msg in rx {
             match msg {
                 NoteMessage::On(note_index, velocity) => {
                     player.note_on(note_index, velocity);
