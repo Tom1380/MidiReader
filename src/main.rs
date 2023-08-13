@@ -29,7 +29,8 @@ fn run() -> Result<(), Box<dyn Error>> {
 }
 
 fn callback(_timestamp: u64, message: &[u8], note_player: &mut NotePlayerHandle) {
-    if let [_, note_index, velocity] = message {
+    // https://www.midi.org/specifications-old/item/table-2-expanded-messages-list-status-bytes
+    if let [144, note_index, velocity] = message {
         match velocity {
             0 => note_player.note_off(*note_index),
             _ => note_player.note_on(*note_index, *velocity),
