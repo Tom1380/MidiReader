@@ -104,8 +104,7 @@ where
             * (2.0_f32)
                 // ¹²√2 because it needs to be 2 when raised to the power of 12.
                 // In other words, it needs to double every 12 notes, meaning the whole octave.
-                .powf(1.0 / 12.0_f32)
-                .powf(distance_from_a0_in_semitones as f32)
+                .powf(distance_from_a0_in_semitones as f32 / 12.0)
     }
 }
 
