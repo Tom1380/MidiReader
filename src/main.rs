@@ -18,8 +18,8 @@ fn run() -> Result<(), Box<dyn Error>> {
 
     let note_player = note_player::<SawWave>();
 
-    // _conn_in needs to be a named parameter, because it needs to be kept alive until the end of the scope
-    let _conn_in = midi_in.connect(in_port, "midir-read-input", callback, note_player)?;
+    // The connection closes when this is dropped, so it needs to be bound.
+    let _conn_in = midi_in.connect(in_port, &in_port_name, callback, note_player)?;
 
     println!("Connection open, reading input from '{in_port_name}'",);
 
