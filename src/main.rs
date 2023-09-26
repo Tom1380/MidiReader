@@ -1,4 +1,5 @@
-use midir::MidiInput;
+use dialoguer::{theme::ColorfulTheme, Select};
+use midir::{MidiInput, MidiInputPort};
 use note_player::custom_sounds::*;
 use note_player::*;
 use std::error::Error;
@@ -12,20 +13,37 @@ fn main() {
 
 fn run() -> Result<(), Box<dyn Error>> {
     let midi_in = MidiInput::new("midir reading input")?;
-    let in_ports = midi_in.ports();
-    let in_port = &in_ports[1];
-    let in_port_name = midi_in.port_name(in_port)?;
+
+    let port = ask_which_port(&midi_in)?;
+    let port_name = midi_in.port_name(&port)?;
 
     let note_player = note_player::<SawWave>();
 
     // The connection closes when this is dropped, so it needs to be bound.
-    let _conn_in = midi_in.connect(in_port, &in_port_name, callback, note_player)?;
+    let _conn_in = midi_in.connect(&port, &port_name, callback, note_player)?;
 
-    println!("Connection open, reading input from '{in_port_name}'",);
+    println!("Connection open, reading input.");
 
     loop {
         std::thread::sleep(std::time::Duration::from_secs(u64::MAX));
     }
+}
+
+fn ask_which_port(midi_in: &MidiInput) -> Result<MidiInputPort, dialoguer::Error> {
+    let in_ports = midi_in.ports();
+
+    let names: Vec<String> = in_ports
+        .iter()
+        .map(|i| midi_in.port_name(i).unwrap())
+        .collect();
+
+    let selection = Select::with_theme(&ColorfulTheme::default())
+        .with_prompt("Select MIDI port")
+        .items(&names[..])
+        .default(0)
+        .interact()?;
+
+    Ok(in_ports[selection].clone())
 }
 
 fn callback(_timestamp: u64, message: &[u8], note_player: &mut NotePlayerHandle) {
