@@ -77,9 +77,8 @@ where
     }
 
     pub fn note_off(&mut self, note_index: u8) {
-        match self.sinks.remove(&note_index) {
-            Some(sink) => sink.stop(),
-            None => {}
+        if let Some(sink) = self.sinks.remove(&note_index) {
+            sink.stop()
         }
     }
 
